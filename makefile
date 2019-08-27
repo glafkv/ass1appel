@@ -1,8 +1,9 @@
-dt: dt.o
-    gcc -o dt dt.o
+dt:	dt.o
+	gcc -o dt dt.o
+ 
 
-dt.o: dt.c
-      gcc -c dt.c
+dt.o:	dt.c
+	gcc -c dt.c
 
 .PHONY: clean
 clean:

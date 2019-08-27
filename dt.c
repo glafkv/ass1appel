@@ -3,15 +3,40 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <dirent.h>
 
 
+/*void listdir(const char *name, int indent){
+	DIR *dir;
+	struct dirent *entry;
+
+	if(!(dir = opendir(name)))
+		return;
+	
+	while((entry = readdir(dir)) != NULL){
+		if(entry->d_type == DT_DIR){
+			char path[1024];
+			if(strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+				continue;
+			snprintf(path,sizeof(path), "%s/%s", name, entry->d_name);
+			printf("%*s[%s]\n", indent, "", entry->d_name);
+			listdir(path, indent + 2);
+			} else {
+				printf("%*s- %s\n", indent, "", entry->d_name);
+			}
+		}
+		closedir(dir);
+}*/
 int main(int argc, char *argv[])
 {
+	//listdir(".",0);	
+
+	printf("Hello world");
 	//Declaration of variables
 	int choice = 0;
 
 	//getopt statement
-	while((choice = getopt(argc, argv, "h:I:Ltpiugsdl")) != -1){
+	while((choice = getopt(argc, argv, "hI:Ltpiugsdl")) != -1){
 
 		switch(choice){
 			case 'h':
@@ -31,7 +56,8 @@ int main(int argc, char *argv[])
 
 				exit(0);		
 	
-			
+			case 'I':
+				
 		}
 	}
 
@@ -45,4 +71,27 @@ int main(int argc, char *argv[])
 
 
 return 0;
+}
+
+
+char* permissions(char *file){
+	struct stat st;
+	char *modeval = malloc(sizeof(char) * 9 + 1);
+	if(stat(file, &st) == 0){
+		mode_t perm = st.st_mode;
+		modeval[0] = (perm & S_IRUSR) ? 'r' : '-';
+		modeval[1] = (perm & S_IWUSR) ? 'w' : '-';
+		modeval[2] = (perm & S_IXUSR) ? 'x' : '-';
+		modeval[3] = (perm & S_IRGRP) ? 'r' : '-';
+		modeval[4] = (perm & S_IWGRP) ? 'w' : '-';
+		modeval[5] = (perm & S_IXGRP) ? 'x' : '-';
+		modeval[6] = (perm & S_IROTH) ? 'r' : '-';
+		modeval[7] = (perm & S_IWOTH) ? 'w' : '-';
+		modeval[8] = (perm & S_IXOTH) ? 'x' : '-';
+		modeval[9] = '\0';
+		return modeval;
+	}
+	else{
+		return strerror(errno);
+	}
 }
