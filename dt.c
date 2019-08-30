@@ -4,34 +4,68 @@
 #include <string.h>
 #include <sys/types.h>
 #include <dirent.h>
+#include <errno.h>
+#include <sys/stat.h>
 
-
-/*void listdir(const char *name, int indent){
-	DIR *dir;
-	struct dirent *entry;
-
-	if(!(dir = opendir(name)))
-		return;
+int isDir(const char* path){
+	struct stat buf;
+	stat(path, &buf);
+	if(stat(path, &buf) != 0)
+		return 0;
+	return S_ISDIR(buf.st_mode);
+}
+void directory(const char* direct){
+	DIR *dirp;
+	struct dirent *direntp;
 	
-	while((entry = readdir(dir)) != NULL){
-		if(entry->d_type == DT_DIR){
-			char path[1024];
-			if(strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
-				continue;
-			snprintf(path,sizeof(path), "%s/%s", name, entry->d_name);
-			printf("%*s[%s]\n", indent, "", entry->d_name);
-			listdir(path, indent + 2);
-			} else {
-				printf("%*s- %s\n", indent, "", entry->d_name);
-			}
+	if ((dirp = opendir(direct)) == NULL){
+		fprintf(stderr, "Could not open %s directory: %s\n", direct, strerror(errno));
+        	exit(1);
+	}
+	printf("%s\n", direct);
+	while ( (direntp = readdir( dirp )) != NULL ){
+		printf("%s\n", direntp->d_name );
+	}
+	closedir(dirp);
+}
+/*void permissionBits(const char* direct){
+	DIR *dirp;
+	struct dirent *info_archivo;
+	struct stat fileStat;
+	char fullPath[256];
+	
+	while ((info_archivo = readdir(dirp)) != 0){
+		if(!stat(fullPath, &fileStat)){
+			printf((fileStat.st_mode & S_IRUSR) ? "r" : "-");
+			printf((fileStat.st_mode & S_IWUSR) ? "w" : "-");
+			printf((fileStat.st_mode & S_IXUSR) ? "x" : "-");
+			printf((fileStat.st_mode & S_IRGRP) ? "r" : "-");
+			printf((fileStat.st_mode & S_IWGRP) ? "w" : "-");
+			printf((fileStat.st_mode & S_IXGRP) ? "x" : "-");
+			printf((fileStat.st_mode & S_IROTH) ? "r" : "-");
+			printf((fileStat.st_mode & S_IWOTH) ? "w" : "-");
+			printf((fileStat.st_mode & S_IXOTH) ? "x" : "-");			
 		}
-		closedir(dir);
+		else {
+			perror("Error in stat");
+		}
+		printf("\n");
+	}
+	
+	closedir(dirp);
 }*/
 int main(int argc, char *argv[])
 {
+	
+	const char* direct = "/classes/OS/appel/appel.1";
+	struct stat fileStat;
+	DIR *dirp;
+	struct dirent *direntp;
+	//directory(direct);
+	//exit(0);
 	//listdir(".",0);	
 
-	printf("Hello world");
+	
 	//Declaration of variables
 	int choice = 0;
 
@@ -56,14 +90,48 @@ int main(int argc, char *argv[])
 
 				exit(0);		
 	
-			case 'I':
+			case 'p':
+				//directory(direct);
+				//permissionBits(direct);
+				if(stat(direct,&fileStat) < 0)
+					return 1;		
+				directory(direct);
 				
+				//while((direntp = readdir(dirp)) != 0){
+				//we can print one file's permission bits
+				//need to figure out how to do the whole file
+				printf("file permissions:\n");
+				printf((fileStat.st_mode & S_IRUSR) ? "r" : "-");
+				 printf( (fileStat.st_mode & S_IWUSR) ? "w" : "-");
+ 				 printf( (fileStat.st_mode & S_IXUSR) ? "x" : "-");
+    				printf( (fileStat.st_mode & S_IRGRP) ? "r" : "-");
+    				printf( (fileStat.st_mode & S_IWGRP) ? "w" : "-");
+   				 printf( (fileStat.st_mode & S_IXGRP) ? "x" : "-");
+    				printf( (fileStat.st_mode & S_IROTH) ? "r" : "-");
+    				printf( (fileStat.st_mode & S_IWOTH) ? "w" : "-");
+    				printf( (fileStat.st_mode & S_IXOTH) ? "x" : "-");
+    				printf("\n\n");
+			//}
 		}
 	}
+	
+	//need to figure out how to accept a directory name without having to put the full path.
+	//lets come back to this later
+	/*const char* directory = "appel.1";
+
+	if(isDir(directory)==1){
+		printf("yes");
+	} else{
+		printf("no");
+	if ((dirp = opendir(direct)) == NULL){
+                fprintf(stderr, "Could not open %s directory: %s\n", direct, strerror(errno));
+        }               exit(1);
+
+}*/
 
 
 
-
+	//closedir(dirp);
 
 
 
@@ -74,24 +142,3 @@ return 0;
 }
 
 
-char* permissions(char *file){
-	struct stat st;
-	char *modeval = malloc(sizeof(char) * 9 + 1);
-	if(stat(file, &st) == 0){
-		mode_t perm = st.st_mode;
-		modeval[0] = (perm & S_IRUSR) ? 'r' : '-';
-		modeval[1] = (perm & S_IWUSR) ? 'w' : '-';
-		modeval[2] = (perm & S_IXUSR) ? 'x' : '-';
-		modeval[3] = (perm & S_IRGRP) ? 'r' : '-';
-		modeval[4] = (perm & S_IWGRP) ? 'w' : '-';
-		modeval[5] = (perm & S_IXGRP) ? 'x' : '-';
-		modeval[6] = (perm & S_IROTH) ? 'r' : '-';
-		modeval[7] = (perm & S_IWOTH) ? 'w' : '-';
-		modeval[8] = (perm & S_IXOTH) ? 'x' : '-';
-		modeval[9] = '\0';
-		return modeval;
-	}
-	else{
-		return strerror(errno);
-	}
-}
