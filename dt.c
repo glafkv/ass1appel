@@ -105,16 +105,16 @@ int main(int argc, char *argv[])
 	char datestring[256];
 	DIR *dfd;
 	char *dir;
-	dir = ".";
+	//dir = "../appel.2";
 	//char *dir;
 	//struct dirent *direntp;
 	//struct passwd pwd;
 //	int s;
 	
-	if((dfd = opendir(dir)) == NULL){
-		fprintf(stderr, "can't open %s\n", dir);
-		return 0;
-	}
+	//if((dfd = opendir(dir)) == NULL){
+	//	fprintf(stderr, "can't open %s\n", dir);
+	//	return 0;
+	//}
 	//directory(direct);
 	//exit(0);
 	//listdir(".",0);	
@@ -128,15 +128,21 @@ int main(int argc, char *argv[])
 		printf("yes\n");
 	else
 		printf("no\n");*/
-	/*if(argc == 2){
-		direct = ".";
+	
+	//this is a problem statement
+	if(argc < 3){
+		dir = ".";
 		//directory(direct);
 	}else{
-		direct = argv[2];
+		dir = argv[2];
 		//directory(direct);
 	}
-	printf("%s is %s a directory\n", direct, isDir(direct) ? "" : " not");
-*/
+//	printf("%s is %s a directory\n", dir, isDir(dir) ? "" : " not");
+
+	if((dfd = opendir(dir)) == NULL){
+		fprintf(stderr, "cant open %s\n", dir);
+		return 0;
+	}
 	//getopt statement
 	while((choice = getopt(argc, argv, "hI:Ltpiugsdl")) != -1){
 
