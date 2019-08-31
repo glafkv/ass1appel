@@ -6,13 +6,19 @@
 #include <dirent.h>
 #include <errno.h>
 #include <sys/stat.h>
+#include <pwd.h>
+#include <grp.h>
+#include <time.h>
+#include <locale.h>
+#include <langinfo.h>
+#include <stdint.h>
+
 
 int isDir(const char* path){
 	struct stat buf;
 	stat(path, &buf);
-	if(stat(path, &buf) != 0)
-		return 0;
-	return S_ISDIR(buf.st_mode);
+	int dir = S_ISDIR(buf.st_mode);
+	return (dir);
 }
 void directory(const char* direct){
 	DIR *dirp;
@@ -28,13 +34,18 @@ void directory(const char* direct){
 	}
 	closedir(dirp);
 }
+/*void getUID(const char* path){
+	struct stat info;
+	stat(path, &info);
+	struct passwd *pw = getpwuid(info.st_uid);
+}*/
 /*void permissionBits(const char* direct){
 	DIR *dirp;
 	struct dirent *info_archivo;
 	struct stat fileStat;
 	char fullPath[256];
 	
-	while ((info_archivo = readdir(dirp)) != 0){
+	while ((info_archivo = readdir(dirp)) != NULL){
 		if(!stat(fullPath, &fileStat)){
 			printf((fileStat.st_mode & S_IRUSR) ? "r" : "-");
 			printf((fileStat.st_mode & S_IWUSR) ? "w" : "-");
@@ -54,21 +65,78 @@ void directory(const char* direct){
 	
 	closedir(dirp);
 }*/
+/*void getUID(const char* direct){
+	struct passwd pwd;
+	struct passwd *result;
+	char *buf;
+	size_t bufsize;
+	int s;
+	
+	bufsize = sysconf(_SC_GETPW_R_SIZE_MAX);
+	if(bufsize = -1)
+		bufsize = 16384;
+
+	buf = malloc(bufsize);
+	if(buf == NULL){
+		perror("malloc");
+		exit(EXIT_FAILURE);
+	}
+	s = getpwnam_r(argv[2], &pwd, buf, bufsize, &result);
+	if(result == NULL){
+		if(s==0)
+			printf("not found\n");
+		else {
+			errno = s;
+			perror("getpwnam_r");
+		}
+		exit(EXIT_FAILURE);
+	}
+	printf("UID %ld\n", (long) pwd.pw_uid);
+	exit(EXIT_SUCCESS);
+}*/
 int main(int argc, char *argv[])
 {
+	int choice = 0;	
+	struct dirent *dp;
+	struct stat statbuf;
+	struct passwd *pwd;
+	struct group *grp;
+	struct tm *tm;
+	char datestring[256];
+	DIR *dfd;
+	char *dir;
+	dir = ".";
+	//char *dir;
+	//struct dirent *direntp;
+	//struct passwd pwd;
+//	int s;
 	
-	const char* direct = "/classes/OS/appel/appel.1";
-	struct stat fileStat;
-	DIR *dirp;
-	struct dirent *direntp;
+	if((dfd = opendir(dir)) == NULL){
+		fprintf(stderr, "can't open %s\n", dir);
+		return 0;
+	}
 	//directory(direct);
 	//exit(0);
 	//listdir(".",0);	
 
 	
 	//Declaration of variables
-	int choice = 0;
-
+	//int choice = 0;
+	//int real =  getuid();
+	//printf("real: %d\n", real);
+	/*if(isDir(direct) == 1)
+		printf("yes\n");
+	else
+		printf("no\n");*/
+	/*if(argc == 2){
+		direct = ".";
+		//directory(direct);
+	}else{
+		direct = argv[2];
+		//directory(direct);
+	}
+	printf("%s is %s a directory\n", direct, isDir(direct) ? "" : " not");
+*/
 	//getopt statement
 	while((choice = getopt(argc, argv, "hI:Ltpiugsdl")) != -1){
 
@@ -91,9 +159,16 @@ int main(int argc, char *argv[])
 				exit(0);		
 	
 			case 'p':
+				while((dp = readdir(dfd)) != NULL){
+					if(stat(dp->d_name, &statbuf) == -1)
+						continue;
+					printf("%s\n", dp->d_name);
+					//printf("%10.10s", sperm (statbuf.st_mode));
+					printf("%4d", statbuf.st_nlink);
+				}
 				//directory(direct);
 				//permissionBits(direct);
-				if(stat(direct,&fileStat) < 0)
+				/*if(stat(direct,&fileStat) < 0)
 					return 1;		
 				directory(direct);
 				
@@ -103,7 +178,8 @@ int main(int argc, char *argv[])
 				printf("file permissions:\n");
 				printf((fileStat.st_mode & S_IRUSR) ? "r" : "-");
 				 printf( (fileStat.st_mode & S_IWUSR) ? "w" : "-");
- 				 printf( (fileStat.st_mode & S_IXUSR) ? "x" : "-");
+ appel.2.1 is  not a directory
+				 printf( (fileStat.st_mode & S_IXUSR) ? "x" : "-");
     				printf( (fileStat.st_mode & S_IRGRP) ? "r" : "-");
     				printf( (fileStat.st_mode & S_IWGRP) ? "w" : "-");
    				 printf( (fileStat.st_mode & S_IXGRP) ? "x" : "-");
@@ -111,13 +187,18 @@ int main(int argc, char *argv[])
     				printf( (fileStat.st_mode & S_IWOTH) ? "w" : "-");
     				printf( (fileStat.st_mode & S_IXOTH) ? "x" : "-");
     				printf("\n\n");
-			//}
+			//}*/
+			//case 'u':
+				
+				//printf("%d\n", real);
+				//getUID(direct);
+				//printf("UID: %ld\n", (long) pwd.pw_uid);				
 		}
 	}
 	
 	//need to figure out how to accept a directory name without having to put the full path.
 	//lets come back to this later
-	/*const char* directory = "appel.1";
+/*	const char* directory = "appel.1";
 
 	if(isDir(directory)==1){
 		printf("yes");
