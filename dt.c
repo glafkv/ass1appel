@@ -202,6 +202,8 @@ int main(int argc, char *argv[])
 							printf("%s\t%s\n", dp->d_name, grp->gr_name);
 						}
 					}
+				}else{
+					printf("This is not a directory\n");
 				}
 			break;
 					
