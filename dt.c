@@ -13,13 +13,14 @@
 #include <langinfo.h>
 #include <stdint.h>
 
-
+//This function checks to make sure it's a directory
 int isDir(const char* path){
 	struct stat buf;
 	stat(path, &buf);
 	int dir = S_ISDIR(buf.st_mode);
 	return (dir);
 }
+//This function opens the directory and prints the contents
 void directory(const char* direct){
 	DIR *dirp;
 	struct dirent *direntp;
@@ -103,45 +104,24 @@ int main(int argc, char *argv[])
 	struct group *grp;
 	struct tm *tm;
 	char datestring[256];
-	DIR *dfd;
 	char *dir;
-	//dir = "../appel.2";
-	//char *dir;
-	//struct dirent *direntp;
-	//struct passwd pwd;
-//	int s;
+	DIR *dfd;
 	
-	//if((dfd = opendir(dir)) == NULL){
-	//	fprintf(stderr, "can't open %s\n", dir);
-	//	return 0;
-	//}
-	//directory(direct);
-	//exit(0);
-	//listdir(".",0);	
+		
 
 	
-	//Declaration of variables
-	//int choice = 0;
-	//int real =  getuid();
-	//printf("real: %d\n", real);
-	/*if(isDir(direct) == 1)
-		printf("yes\n");
-	else
-		printf("no\n");*/
+
 	
-	//this is a problem statement
-	if(argc < 3){
+	//Checks if argument is less than 3, if it is, then use root directory. If not, use directory user put.
+	if(argc < 3)
 		dir = ".";
-		//directory(direct);
-	}else{
+	else
 		dir = argv[2];
-		//directory(direct);
-	}
-//	printf("%s is %s a directory\n", dir, isDir(dir) ? "" : " not");
-
+	
+	//Error checking the directory
 	if((dfd = opendir(dir)) == NULL){
-		fprintf(stderr, "cant open %s\n", dir);
-		return 0;
+		fprintf(stderr, "Could not open %s directory: %s\n", dir, strerror(errno));
+		exit(1);
 	}
 	//getopt statement
 	while((choice = getopt(argc, argv, "hI:Ltpiugsdl")) != -1){
@@ -164,14 +144,14 @@ int main(int argc, char *argv[])
 
 				exit(0);		
 	
-			case 'p':
-				while((dp = readdir(dfd)) != NULL){
-					if(stat(dp->d_name, &statbuf) == -1)
-						continue;
-					printf("%s\n", dp->d_name);
+			//case 'p':
+				//while((dp = readdir(dfd)) != NULL){
+					//if(stat(dp->d_name, &statbuf) == -1)
+						//continue;
+					//printf("%s\n", dp->d_name);
 					//printf("%10.10s", sperm (statbuf.st_mode));
-					printf("%4d", statbuf.st_nlink);
-				}
+				//	printf("%4d", statbuf.st_nlink);
+			//	}
 				//directory(direct);
 				//permissionBits(direct);
 				/*if(stat(direct,&fileStat) < 0)
@@ -194,31 +174,43 @@ int main(int argc, char *argv[])
     				printf( (fileStat.st_mode & S_IXOTH) ? "x" : "-");
     				printf("\n\n");
 			//}*/
-			//case 'u':
-				
-				//printf("%d\n", real);
-				//getUID(direct);
-				//printf("UID: %ld\n", (long) pwd.pw_uid);				
+			case 'u':
+				//confirm it is indeed a directory
+				if(isDir(dir) == 1){
+					//loop through everything that's in there and print the UID
+					while((dp = readdir(dfd)) != NULL){
+						if((pwd = getpwuid(statbuf.st_uid)) == NULL){
+							perror("getpwuid");
+						}else{
+							//we need to figure out how to nicely print this next to each other
+							printf("%s\t%s\n",dp->d_name, pwd->pw_name);
+						}
+					}	
+				}else{
+					printf("This is not a directory\n");
+				}
+			break;
+			
+			case 'g':
+				//confirm it's a directory
+				if(isDir(dir) == 1){
+					//loop through everything and print the GID
+					while((dp = readdir(dfd)) != NULL){
+						if((grp = getgrgid(statbuf.st_gid)) == NULL){
+							perror("getgrgid");
+						}else{
+							printf("%s\t%s\n", dp->d_name, grp->gr_name);
+						}
+					}
+				}
+			break;
+					
+
 		}
 	}
 	
-	//need to figure out how to accept a directory name without having to put the full path.
-	//lets come back to this later
-/*	const char* directory = "appel.1";
 
-	if(isDir(directory)==1){
-		printf("yes");
-	} else{
-		printf("no");
-	if ((dirp = opendir(direct)) == NULL){
-                fprintf(stderr, "Could not open %s directory: %s\n", direct, strerror(errno));
-        }               exit(1);
-
-}*/
-
-
-
-	//closedir(dirp);
+	
 
 
 
