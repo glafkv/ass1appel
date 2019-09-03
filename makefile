@@ -3,7 +3,7 @@ dt:	dt.o
  
 
 dt.o:	dt.c
-	gcc -c dt.c
+	gcc -g -c dt.c
 
 .PHONY: clean
 clean:

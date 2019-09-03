@@ -35,11 +35,7 @@ void directory(const char* direct){
 	}
 	closedir(dirp);
 }
-/*void getUID(const char* path){
-	struct stat info;
-	stat(path, &info);
-	struct passwd *pw = getpwuid(info.st_uid);
-}*/
+
 /*void permissionBits(const char* direct){
 	DIR *dirp;
 	struct dirent *info_archivo;

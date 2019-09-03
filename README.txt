@@ -6,7 +6,11 @@ Purpose:
 	The purpose of this program is to familiarize myself with using getopt and perror while practicing system calls.
 
 How to Run:
+	
 	make		//to compile
+	
+	./dt <opt> [../filename]
+	File name must be given in ../filename format or it won't be recognized as a directory
 	./dt -h		//to print the help message
 	./dt -I n	//to change indentation to n spaces for each level
 	./dt -L		//to follow any symbolic links
@@ -20,3 +24,5 @@ How to Run:
 	./dt -l		//to print information on the file as if the options tpiugs are all specified
 
 	make clean	//to remove all the object and executable files	
+
+
