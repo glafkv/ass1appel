@@ -91,7 +91,7 @@ void directory(const char* direct){
 	printf("UID %ld\n", (long) pwd.pw_uid);
 	exit(EXIT_SUCCESS);
 }*/
-int main(int argc, char *argv[])
+int main(const int argc, char ** argv)
 {
 	int choice = 0;	
 	struct dirent *dp;
@@ -109,16 +109,16 @@ int main(int argc, char *argv[])
 
 	
 	//Checks if argument is less than 3, if it is, then use root directory. If not, use directory user put.
-	if(argc < 3)
+	/*if(optind >= argc)
 		dir = ".";
 	else
-		dir = argv[2];
+		dir = argv[optind];
 	
 	//Error checking the directory
 	if((dfd = opendir(dir)) == NULL){
 		fprintf(stderr, "Could not open %s directory: %s\n", dir, strerror(errno));
 		exit(1);
-	}
+	}*/
 	//getopt statement
 	while((choice = getopt(argc, argv, "hI:Ltpiugsdl")) != -1){
 
@@ -172,6 +172,7 @@ int main(int argc, char *argv[])
 			//}*/
 			case 'u':
 				//confirm it is indeed a directory
+				
 				if(isDir(dir) == 1){
 					//loop through everything that's in there and print the UID
 					while((dp = readdir(dfd)) != NULL){
@@ -185,6 +186,7 @@ int main(int argc, char *argv[])
 				}else{
 					printf("This is not a directory\n");
 				}
+		
 			break;
 			
 			case 'g':
@@ -201,13 +203,24 @@ int main(int argc, char *argv[])
 				}else{
 					printf("This is not a directory\n");
 				}
+				
 			break;
 					
 
 		}
 	}
-	
 
+	if(optind >= argc){
+		dir = ".";
+	
+	}else{
+		dir = argv[optind];
+		
+	}
+	if((dfd = opendir(dir)) == NULL){
+		fprintf(stderr, "could not open %s directory: %s\n", dir, strerror(errno));
+		exit(1);
+	}
 	
 
 
