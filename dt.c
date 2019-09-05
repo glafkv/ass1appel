@@ -33,64 +33,12 @@ void directory(const char* direct){
 	while ( (direntp = readdir( dirp )) != NULL ){
 		printf("%s\n", direntp->d_name );
 	}
-	closedir(dirp);
+	//closedir(dirp);
 }
 
-/*void permissionBits(const char* direct){
-	DIR *dirp;
-	struct dirent *info_archivo;
-	struct stat fileStat;
-	char fullPath[256];
-	
-	while ((info_archivo = readdir(dirp)) != NULL){
-		if(!stat(fullPath, &fileStat)){
-			printf((fileStat.st_mode & S_IRUSR) ? "r" : "-");
-			printf((fileStat.st_mode & S_IWUSR) ? "w" : "-");
-			printf((fileStat.st_mode & S_IXUSR) ? "x" : "-");
-			printf((fileStat.st_mode & S_IRGRP) ? "r" : "-");
-			printf((fileStat.st_mode & S_IWGRP) ? "w" : "-");
-			printf((fileStat.st_mode & S_IXGRP) ? "x" : "-");
-			printf((fileStat.st_mode & S_IROTH) ? "r" : "-");
-			printf((fileStat.st_mode & S_IWOTH) ? "w" : "-");
-			printf((fileStat.st_mode & S_IXOTH) ? "x" : "-");			
-		}
-		else {
-			perror("Error in stat");
-		}
-		printf("\n");
-	}
-	
-	closedir(dirp);
-}*/
-/*void getUID(const char* direct){
-	struct passwd pwd;
-	struct passwd *result;
-	char *buf;
-	size_t bufsize;
-	int s;
-	
-	bufsize = sysconf(_SC_GETPW_R_SIZE_MAX);
-	if(bufsize = -1)
-		bufsize = 16384;
 
-	buf = malloc(bufsize);
-	if(buf == NULL){
-		perror("malloc");
-		exit(EXIT_FAILURE);
-	}
-	s = getpwnam_r(argv[2], &pwd, buf, bufsize, &result);
-	if(result == NULL){
-		if(s==0)
-			printf("not found\n");
-		else {
-			errno = s;
-			perror("getpwnam_r");
-		}
-		exit(EXIT_FAILURE);
-	}
-	printf("UID %ld\n", (long) pwd.pw_uid);
-	exit(EXIT_SUCCESS);
-}*/
+	
+
 int main(const int argc, char ** argv)
 {
 	int choice = 0;	
@@ -100,25 +48,25 @@ int main(const int argc, char ** argv)
 	struct group *grp;
 	struct tm *tm;
 	char datestring[256];
-	char *dir;
+	char *dir = ".";
 	DIR *dfd;
 	
-		
+	int uidFlag = 0;	
+	int pFlag = 0;
+	int gidFlag = 0;
 
-	
-
-	
+	//directory(dir);
 	//Checks if argument is less than 3, if it is, then use root directory. If not, use directory user put.
-	/*if(optind >= argc)
-		dir = ".";
-	else
-		dir = argv[optind];
+	//if(optind >= argc)
+	//	dir = ".";
+	//else
+	//	dir = argv[optind];
 	
 	//Error checking the directory
 	if((dfd = opendir(dir)) == NULL){
 		fprintf(stderr, "Could not open %s directory: %s\n", dir, strerror(errno));
 		exit(1);
-	}*/
+	}
 	//getopt statement
 	while((choice = getopt(argc, argv, "hI:Ltpiugsdl")) != -1){
 
@@ -140,77 +88,67 @@ int main(const int argc, char ** argv)
 
 				exit(0);		
 	
-			//case 'p':
-				//while((dp = readdir(dfd)) != NULL){
-					//if(stat(dp->d_name, &statbuf) == -1)
-						//continue;
-					//printf("%s\n", dp->d_name);
-					//printf("%10.10s", sperm (statbuf.st_mode));
-				//	printf("%4d", statbuf.st_nlink);
-			//	}
-				//directory(direct);
-				//permissionBits(direct);
-				/*if(stat(direct,&fileStat) < 0)
-					return 1;		
-				directory(direct);
-				
-				//while((direntp = readdir(dirp)) != 0){
-				//we can print one file's permission bits
-				//need to figure out how to do the whole file
-				printf("file permissions:\n");
-				printf((fileStat.st_mode & S_IRUSR) ? "r" : "-");
-				 printf( (fileStat.st_mode & S_IWUSR) ? "w" : "-");
- appel.2.1 is  not a directory
-				 printf( (fileStat.st_mode & S_IXUSR) ? "x" : "-");
-    				printf( (fileStat.st_mode & S_IRGRP) ? "r" : "-");
-    				printf( (fileStat.st_mode & S_IWGRP) ? "w" : "-");
-   				 printf( (fileStat.st_mode & S_IXGRP) ? "x" : "-");
-    				printf( (fileStat.st_mode & S_IROTH) ? "r" : "-");
-    				printf( (fileStat.st_mode & S_IWOTH) ? "w" : "-");
-    				printf( (fileStat.st_mode & S_IXOTH) ? "x" : "-");
-    				printf("\n\n");
-			//}*/
+			case 'p':
+				pFlag = 1;
+				break;
 			case 'u':
-				//confirm it is indeed a directory
-				
-				if(isDir(dir) == 1){
-					//loop through everything that's in there and print the UID
-					while((dp = readdir(dfd)) != NULL){
-						if((pwd = getpwuid(statbuf.st_uid)) == NULL){
-							perror("getpwuid");
-						}else{
-							//we need to figure out how to nicely print this next to each other
-							printf("%s\t%s\n",dp->d_name, pwd->pw_name);
-						}
-					}	
-				}else{
-					printf("This is not a directory\n");
-				}
-		
-			break;
+				uidFlag = 1;
+				break;
 			
 			case 'g':
-				//confirm it's a directory
-				if(isDir(dir) == 1){
-					//loop through everything and print the GID
-					while((dp = readdir(dfd)) != NULL){
-						if((grp = getgrgid(statbuf.st_gid)) == NULL){
-							perror("getgrgid");
-						}else{
-							printf("%s\t%s\n", dp->d_name, grp->gr_name);
-						}
-					}
-				}else{
-					printf("This is not a directory\n");
-				}
-				
-			break;
+				gidFlag = 1;
+				break;
+			
 					
 
 		}
 	}
+	//if(stat(dir, &statbuf) < 0)
+		//return 1;
+	if(pFlag == 1){
+		if(stat(dir, &statbuf) < 0)
+			return 1;
+		while((dp = readdir(dfd)) != NULL){
+			printf((S_ISDIR(statbuf.st_mode)) ? "d" : "-");
+			printf((statbuf.st_mode & S_IRUSR) ? "r" : "-");
+			printf((statbuf.st_mode & S_IWUSR) ? "w" : "-");
+			printf((statbuf.st_mode & S_IXUSR) ? "x" : "-");
+			printf((statbuf.st_mode & S_IRGRP) ? "r" : "-");
+			printf((statbuf.st_mode & S_IWGRP) ? "w" : "-");
+			printf((statbuf.st_mode & S_IXGRP) ? "x" : "-");
+			printf((statbuf.st_mode & S_IROTH) ? "r" : "-");
+			printf((statbuf.st_mode & S_IWOTH) ? "w" : "-");
+			printf((statbuf.st_mode & S_IXOTH) ? "x" : "-");
+		
+			printf("\n");	
+		}
+		//printf("\n\n");
+	}
+	if(uidFlag == 1){
+		
+		while((dp = readdir(dfd)) != NULL){
+			if(stat(dp->d_name, &statbuf) == -1)
+				continue;
+			if((pwd = getpwuid(statbuf.st_uid)) == NULL){
+				perror("getpwuid");
+			}else{
+				printf("%10s%15d\n",dp->d_name, statbuf.st_uid);
+			}
+		}
+	}
+	if(gidFlag == 1){
+		while((dp = readdir(dfd)) != NULL){
+			if(stat(dp->d_name, &statbuf) == -1)
+				continue;
+			if((grp = getgrgid(statbuf.st_gid)) == NULL){
+				perror("getgrgid");
+			}else{
+				printf("%10s%15d\n", dp->d_name, statbuf.st_gid);
+			}
+		}
+	}
 
-	if(optind >= argc){
+	/*if(optind >= argc){
 		dir = ".";
 	
 	}else{
@@ -220,7 +158,7 @@ int main(const int argc, char ** argv)
 	if((dfd = opendir(dir)) == NULL){
 		fprintf(stderr, "could not open %s directory: %s\n", dir, strerror(errno));
 		exit(1);
-	}
+	}*/
 	
 
 
