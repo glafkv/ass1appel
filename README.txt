@@ -2,6 +2,9 @@ ass1
 Author: Gabi Appel
 Due date: 9/5/2019
 
+I don't really know how I'm supposed to prove I used version control, but here's my github:
+github.com/glafkv
+
 Purpose:
 	The purpose of this program is to familiarize myself with using getopt and perror while practicing system calls.
 
@@ -25,4 +28,11 @@ How to Run:
 
 	make clean	//to remove all the object and executable files	
 
+ISSUES:
+	1. I couldn't get the symbolic link one to work
+	2. I saved the -I n indentation one for last, unfortunately, I did not figure that one out either
+	3. I tried a million different variations of a depth first directory search, but none of them were working out for me. 
+	   I can't figure out why they aren't working out. I'm being driven crazy.
+	4. I tried it on a variety of different directories, but the answers were not coming out exactly how I imagined them to.
 
+Good news is... I feel better acquainted with getopt and the project is doing a lot better than where I was at at 11am today. 

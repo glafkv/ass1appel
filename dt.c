@@ -20,6 +20,11 @@ int isDir(const char* path){
 	int dir = S_ISDIR(buf.st_mode);
 	return (dir);
 }
+/*DISCLAIMER: all the commented out functions below are my failed attempts at a depth first search of a directory.
+ * NONE OF THEM WORKED FOR ME
+ * IT DROVE ME CRAZY
+ * I SWEAR I TRIED */
+
 /*void listDir(const char *direct, int indent){
 	DIR *dir;
 	struct dirent *entry;
@@ -75,7 +80,7 @@ int isDir(const char* path){
 		closedir(dir);
 	}
 }*/
-void listdir(char *dir){
+/*void listdir(char *dir){
 	DIR *dp;
 	struct dirent *entry;
 	struct stat statbuf;
@@ -103,17 +108,42 @@ void listdir(char *dir){
 		}
 	}
 	closedir(dp);
-}
+}*/
+/*void listdir(const char *name, int level){
+	DIR *dir;
+	struct dirent *entry;
+	
+	if(!(dir = opendir(name)))
+		return;
+	if(!(entry = readdir(dir)))
+		return;
+	
+	do{
+		if(entry->d_type == DT_DIR){
+			char path[1024];
+			int len = snprintf(path, sizeof(path)-1, "%s/%s", name, entry->d_name);
+			path[len] = 0;
+			if(strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+				continue;
+			printf("%*s%s\n", level*2, "", entry->d_name);
+			listdir(path, level + 1);
+		}else{
+			printf("%*s- %s\n", level*2, "", entry->d_name);
+		}	
+	} while(entry = readdir(dir));
+	closedir(dir);
+}*/
 int main(const int argc, char ** argv)
 {
+	//Declaring those variables
 	int choice = 0;	
 	struct dirent *dp;
 	struct stat statbuf;
 	struct passwd *pwd;
 	struct group *grp;
-	char *dir = "../appel.1";
+	char *dir;
 	DIR *dfd;
-	
+	//Here is all my flags for the getopt statement
 	int uidFlag = 0;	
 	int pFlag = 0;
 	int gidFlag = 0;
@@ -122,15 +152,18 @@ int main(const int argc, char ** argv)
 	int sFlag = 0;
 	int dFlag = 0;
 	int allFlag = 0;
-	
-	
-	listdir(dir);
+
+	//Will this function work? What about this one? No? Ok cool	
+//	list(dir);
+	//listdir(dir, 1);
 	//list("./");
-	/*if(argc < 3)
+	//
+	//Checking to see if user put in a directory name
+	if(argc < 3)
 		dir = ".";
 	else
 		dir = argv[2];
-*/	//list(".");
+	//list(".");
 	//listFiles(dir);
 	//listDir(dir, 2);
 	//Error checking the directory
@@ -189,9 +222,10 @@ int main(const int argc, char ** argv)
 	}
 	//int fileMode;
 	//fileMode = statbuf.st_mode;
+	
+	//print the permission bits
 	if(pFlag == 1){
-		//if(stat(dir, &statbuf) < 0)
-		//	return 1;
+		//looping through the specified directory
 		while((dp = readdir(dfd)) != NULL){
 			if(stat(dp->d_name, &statbuf) == -1)
 				continue;
@@ -199,6 +233,7 @@ int main(const int argc, char ** argv)
 			printf("\t");
 			int fileMode;
 			fileMode = statbuf.st_mode;
+			//checking the modes and printing the associated letter
 			if(fileMode & S_IRUSR)
 				printf("r");
 			else
@@ -238,11 +273,13 @@ int main(const int argc, char ** argv)
 			printf("\n");	
 		}
 	}
+	//Lets get the UID now
 	if(uidFlag == 1){
-		
+		//looping through the directory
 		while((dp = readdir(dfd)) != NULL){
 			if(stat(dp->d_name, &statbuf) == -1)
 				continue;
+			//if we can't find a UID, throw an error, else print our info
 			if((pwd = getpwuid(statbuf.st_uid)) == NULL){
 				perror("getpwuid");
 			}else{
@@ -250,10 +287,13 @@ int main(const int argc, char ** argv)
 			}
 		}
 	}
+	//Lets get the GID
 	if(gidFlag == 1){
+		//loop throught the directory
 		while((dp = readdir(dfd)) != NULL){
 			if(stat(dp->d_name, &statbuf) == -1)
 				continue;
+			//if we can't find a GID, throw an error, else print our info
 			if((grp = getgrgid(statbuf.st_gid)) == NULL){
 				perror("getgrgid");
 			}else{
@@ -261,31 +301,42 @@ int main(const int argc, char ** argv)
 			}
 		}
 	}
+	//Getting the inodes
 	if(iFlag == 1){
 		while((dp = readdir(dfd)) != NULL){
 			if(stat(dp->d_name, &statbuf) == -1)
 				continue;
+			//print our numbers
 			printf("%10s\t%u\n", dp->d_name, statbuf.st_ino);
 		}
 	}
+	//Getting the file size
 	if(sFlag == 1){
 		while((dp = readdir(dfd)) != NULL){
 			if(stat(dp->d_name, &statbuf) == -1)
 				continue;
+			//converting it to kilo if its too big
 			if(statbuf.st_size > 1000){
 				int kilo = statbuf.st_size / 1024;
 				printf("%10s\t%dK\n", dp->d_name, kilo);
-			}else if(statbuf.st_size > 1000000){
+			}
+			//converting it to mega
+			else if(statbuf.st_size > 1000000){
 				int mega = statbuf.st_size / (1024 * 1024);
 				printf("%10s\t%dM\n", dp->d_name, mega);
-			}else if(statbuf.st_size > 1000000000){
+			}
+			//converting to giga
+			else if(statbuf.st_size > 1000000000){
 				int gig = statbuf.st_size / (1024 * 1024 * 1024);
 				printf("%10s\t%dG\n", dp->d_name, gig);
-			}else{
+			}
+			//plain old bytes
+			else{
 				printf("%10s\t%ld bytes\n", dp->d_name, statbuf.st_size);
 			}
 		}
 	}
+	//print the last modified time
 	if(dFlag == 1){
 		while((dp = readdir(dfd)) != NULL){
 			if(stat(dp->d_name, &statbuf) == -1)
@@ -293,6 +344,7 @@ int main(const int argc, char ** argv)
 			printf("%10s\t%s\n", dp->d_name, ctime(&statbuf.st_mtim.tv_sec));
 		}
 	}
+	//print all the stuff above
 	if(allFlag == 1){
 		while((dp = readdir(dfd)) != NULL){
 			if(stat(dp->d_name, &statbuf) == -1)
@@ -366,7 +418,9 @@ int main(const int argc, char ** argv)
 			printf("%10s", ctime(&statbuf.st_mtim.tv_sec));	
 			printf("\n");
 		}
-	}	
+	}
+
+	//Failed attempt at the symbolic links	
 	/*lstat(dir, &statbuf);
 	int link = S_ISLNK(statbuf.st_mode);
 	if(lFlag == 1){
@@ -382,7 +436,9 @@ int main(const int argc, char ** argv)
 			}
 		}
 	}*/
-						
+					
+
+	//I still can't quite figure out how to use optind properly ):	
 	/*if(optind >= argc){
 		
 		dir = ".";
